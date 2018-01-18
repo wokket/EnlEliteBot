@@ -46,7 +46,9 @@ namespace EnlEliteBot.Web
                 defaults: new { controller = "Home", action = "Index" });
             });
 
-            var bot = new EliteBot("xoxb-265187077029-rAX75AmmI07FGdPXrSlVzrHE");
+
+            var slackToken = Configuration["slackToken"];
+            var bot = new EliteBot(slackToken);
             bot.Configure();
         }
     }
