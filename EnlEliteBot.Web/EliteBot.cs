@@ -1,8 +1,7 @@
 ﻿using EnlEliteBot.Web.EDDB;
-using EnlEliteBot.Web.EDSM;
 using Slackbot;
 using System.Linq;
-using System.Text.Encodings.Web;
+using static System.StringComparison;
 
 namespace EnlEliteBot.Web
 {
@@ -29,18 +28,23 @@ namespace EnlEliteBot.Web
 
         public void SystemLookupHandler(object sender, OnMessageArgs message)
         {
-            if (message.Text.StartsWith("?system"))
+            if (message.Text.StartsWith("?system", OrdinalIgnoreCase) || message.Text.StartsWith("? system", OrdinalIgnoreCase))
             {
-                var systemName = message.Text.Replace("?system", "").Trim();
+
+                var text = message.Text.ToLower();
+                var systemName = message.Text.Replace("?system", "").Replace ("? system", "").Trim();
                 var result = EDDBHelper.GetSystemInfo(systemName).Result;
 
-                if (result == null)
+                if (result == null || result.total == 0)
                 {
                     SendMessage(message.Channel, $"EDDB has no knowledge of '{systemName}'!");
                 }
                 else
                 {
-                    SendMessage(message.Channel, result.Url);
+                    foreach (var system in result.docs)
+                    {
+                        SendMessage(message.Channel, system.Url);
+                    }
                 }
             }
         }
