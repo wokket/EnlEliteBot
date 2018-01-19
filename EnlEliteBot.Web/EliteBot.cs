@@ -1,4 +1,5 @@
-﻿using EnlEliteBot.Web.EDSM;
+﻿using EnlEliteBot.Web.EDDB;
+using EnlEliteBot.Web.EDSM;
 using Slackbot;
 using System.Linq;
 using System.Text.Encodings.Web;
@@ -31,11 +32,11 @@ namespace EnlEliteBot.Web
             if (message.Text.StartsWith("?system"))
             {
                 var systemName = message.Text.Replace("?system", "").Trim();
-                var result = EDSMHelper.GetSystemInfo(systemName).Result;
+                var result = EDDBHelper.GetSystemInfo(systemName).Result;
 
                 if (result == null)
                 {
-                    SendMessage(message.Channel, $"EDSM has no knowledge of '{systemName}'!");
+                    SendMessage(message.Channel, $"EDDB has no knowledge of '{systemName}'!");
                 }
                 else
                 {
