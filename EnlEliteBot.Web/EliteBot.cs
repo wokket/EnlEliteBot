@@ -28,11 +28,14 @@ namespace EnlEliteBot.Web
 
         public void SystemLookupHandler(object sender, OnMessageArgs message)
         {
-            if (message.Text.StartsWith("?system", OrdinalIgnoreCase) || message.Text.StartsWith("? system", OrdinalIgnoreCase))
+
+            var text = message.Text.ToLower();
+            if (text.StartsWith("?system", OrdinalIgnoreCase) ||
+                text.StartsWith("? system", OrdinalIgnoreCase))
             {
 
-                var text = message.Text.ToLower();
-                var systemName = message.Text.Replace("?system", "").Replace ("? system", "").Trim();
+
+                var systemName = text.Replace("?system", "").Replace ("? system", "").Trim();
                 var result = EDDBHelper.GetSystemInfo(systemName).Result;
 
                 if (result == null || result.total == 0)
