@@ -16,7 +16,9 @@ namespace EnlEliteBot.Web
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+#if DEBUG
                 .AddUserSecrets<Startup>()
+#endif
                 .AddEnvironmentVariables();
 
             Configuration = builder.Build();

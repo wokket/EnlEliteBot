@@ -15,6 +15,7 @@ namespace EnlEliteBot.Web
         {
             OnMessage += PingBotHandler;
             OnMessage += SystemLookupHandler;
+            OnMessage += FactionTrendHandler;
         }
 
 
@@ -35,7 +36,7 @@ namespace EnlEliteBot.Web
             {
 
 
-                var systemName = text.Replace("?system", "").Replace ("? system", "").Trim();
+                var systemName = text.Replace("?system", "").Replace("? system", "").Trim();
                 var result = EDDBHelper.GetSystemInfo(systemName).Result;
 
                 if (result == null || result.total == 0)
@@ -52,6 +53,28 @@ namespace EnlEliteBot.Web
             }
         }
 
+        public void FactionTrendHandler(object sender, OnMessageArgs message)
+        {
+            var text = message.Text.ToLower();
+            if (text.StartsWith("?bgs") || text.StartsWith("? bgs"))
+            {
+                var systemName = text.Replace("?bgs", "").Replace("? bgs", "").Trim();
+                var result = EDDBHelper.GetSystemInfo(systemName).Result;
 
+                if (result == null || result.total == 0)
+                {
+                    SendMessage(message.Channel, $"EDDB has no knowledge of '{systemName}'!");
+                }
+                else
+                {
+                    foreach (var system in result.docs)
+                    {
+                        var url = $"https://elitebgs.kodeblox.com/system/{system._id}";
+                        SendMessage(message.Channel, url);
+                    }
+                }
+
+            }
+        }
     }
 }
