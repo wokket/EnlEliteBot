@@ -24,6 +24,9 @@ namespace EnlEliteBot.Web.EDDB
         public int edsm_id { get; set; }
         public string name { get; set; }
 
+        public float x { get; set; }
+        public float y { get; set; }
+        public float z { get; set; }
 
 
     }
