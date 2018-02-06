@@ -1,8 +1,8 @@
 ﻿using EnlEliteBot.Web.EDDB;
+using EnlEliteBot.Web.EDSM;
 using Slackbot;
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 using static System.StringComparison;
 
 namespace EnlEliteBot.Web
@@ -99,31 +99,31 @@ namespace EnlEliteBot.Web
                 names[0] = names[0].Trim();
                 names[1] = names[1].Trim();
 
-                var task0 = EDDBHelper.GetSystemInfo(names[0]);
-                var task1 = EDDBHelper.GetSystemInfo(names[1]);
+                var task0 = LocationHelper.GetLocationFor(names[0]);
+                var task1 = LocationHelper.GetLocationFor(names[1]);
 
                 var result0 = task0.GetAwaiter().GetResult();
 
-                if (result0.total == 0)
+                if (result0 == null)
                 {
-                    SendMessage(message.Channel, $"EDDB has no knowledge of '{names[0]}'!");
+                    SendMessage(message.Channel, $"EDDB has no knowledge of a system or public commander called '{names[0]}'!");
                     return;
                 }
 
                 var result1 = task1.GetAwaiter().GetResult();
-                if (result1.total == 0)
+                if (result1 == null)
                 {
-                    SendMessage(message.Channel, $"EDDB has no knowledge of '{names[1]}'!");
+                    SendMessage(message.Channel, $"EDDB has no knowledge of a system or public commander called '{names[1]}'!");
                     return;
                 }
 
-                var distance = CalcDistance(result0.docs[0], result1.docs[0]);
+                var distance = CalcDistance(result0, result1);
 
                 SendMessage(message.Channel, $"Distance between {names[0]} and {names[1]} is {distance}ly");
             }
         }
 
-        private double CalcDistance(EDDBSystemInfo sys1, EDDBSystemInfo sys2)
+        private double CalcDistance(ICoordinates sys1, ICoordinates sys2)
         {
 
             // see http://www.math.usm.edu/lambers/mat169/fall09/lecture17.pdf
@@ -133,7 +133,7 @@ namespace EnlEliteBot.Web
             var zComponent = (sys2.z - sys1.z) * (sys2.z - sys1.z);
 
 
-            var result =  Math.Sqrt(xComponent + yComponent + zComponent);
+            var result = Math.Sqrt(xComponent + yComponent + zComponent);
             return Math.Round(result, 2);
         }
     }

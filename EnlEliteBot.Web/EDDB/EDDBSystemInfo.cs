@@ -13,7 +13,7 @@ namespace EnlEliteBot.Web.EDDB
         public int pages { get; set; }
     }
 
-    public class EDDBSystemInfo
+    public class EDDBSystemInfo : ICoordinates
     {
 
         public string Url { get { return $"https://eddb.io/system/{id}"; } }
@@ -24,9 +24,9 @@ namespace EnlEliteBot.Web.EDDB
         public int edsm_id { get; set; }
         public string name { get; set; }
 
-        public float x { get; set; }
         public float y { get; set; }
         public float z { get; set; }
+        public float x { get; set; }
 
 
     }
