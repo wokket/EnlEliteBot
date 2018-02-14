@@ -19,6 +19,7 @@ namespace EnlEliteBot.Web
             OnMessage += SystemLookupHandler;
             OnMessage += FactionTrendHandler;
             OnMessage += DistanceHandler;
+            OnMessage += LocateCommanderHandler;
         }
 
 
@@ -80,6 +81,27 @@ namespace EnlEliteBot.Web
             }
         }
 
+        public void LocateCommanderHandler(object sender, OnMessageArgs message)
+        {
+            var text = message.Text.ToLower();
+            if (text.StartsWith("?locate") || text.StartsWith("? locate"))
+            {
+                var commander = text.Replace("?locate", "").Replace("? locate", "");
+
+                var player = EDSMHelper.GetCommanderLastPosition(commander).Result;
+
+                if (player == null)
+                {
+                    SendMessage(message.Channel, $"EDSM can't find a public commander called '{commander}'!");
+                }
+                else
+                {
+                    SendMessage(message.Channel, $"'{commander}' last seen in {player.system}");
+                }
+            }
+        }
+
+
         public void DistanceHandler(object sender, OnMessageArgs message)
         {
 
@@ -117,25 +139,13 @@ namespace EnlEliteBot.Web
                     return;
                 }
 
-                var distance = CalcDistance(result0, result1);
+                var distance = LocationHelper.CalcDistance(result0, result1);
 
                 SendMessage(message.Channel, $"Distance between {names[0]} and {names[1]} is {distance}ly");
             }
         }
 
-        private double CalcDistance(ICoordinates sys1, ICoordinates sys2)
-        {
 
-            // see http://www.math.usm.edu/lambers/mat169/fall09/lecture17.pdf
-
-            var xComponent = (sys2.x - sys1.x) * (sys2.x - sys1.x);
-            var yComponent = (sys2.y - sys1.y) * (sys2.y - sys1.y);
-            var zComponent = (sys2.z - sys1.z) * (sys2.z - sys1.z);
-
-
-            var result = Math.Sqrt(xComponent + yComponent + zComponent);
-            return Math.Round(result, 2);
-        }
     }
 }
 
