@@ -20,7 +20,7 @@ namespace EnlEliteBot.Web
             OnMessage += FactionTrendHandler;
             OnMessage += DistanceHandler;
             OnMessage += LocateCommanderHandler;
-
+            OnMessage += TrafficHandler;
         }
 
         #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
@@ -71,6 +71,15 @@ namespace EnlEliteBot.Web
             if (text.StartsWith("?distance") || text.StartsWith("? distance"))
             {
                 _handlers.DistanceHandlerAsync(text, message.Channel);
+            }
+        }
+
+        public void TrafficHandler(object sender, OnMessageArgs message)
+        {
+            var text = message.Text.ToLower();
+            if (text.StartsWith("?traffic") || text.StartsWith("? traffic"))
+            {
+                _handlers.TrafficHandlerAsync(text, message.Channel);
             }
         }
 

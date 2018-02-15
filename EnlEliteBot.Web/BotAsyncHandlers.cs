@@ -59,7 +59,7 @@ namespace EnlEliteBot.Web
 
         internal async Task LocateCommanderAsync(string text, string channel)
         {
-            var commander = text.Replace("?locate", "").Replace("? locate", "");
+            var commander = text.Replace("?locate", "").Replace("? locate", "").Trim();
 
             var player = await EDSMHelper.GetCommanderLastPosition(commander);
 
@@ -69,7 +69,7 @@ namespace EnlEliteBot.Web
             }
             else
             {
-                SendMessage(channel, $"'{commander}' last seen in {player.system}");
+                SendMessage(channel, $"'{commander}' last seen in {player.system} at {player.dateLastActivity ?? "some point in the past"}");
             }
         }
 
@@ -109,6 +109,33 @@ namespace EnlEliteBot.Web
             var distance = LocationHelper.CalcDistance(result0, result1);
 
             SendMessage(channel, $"Distance between {names[0]} and {names[1]} is {distance}ly");
+        }
+
+        internal async Task TrafficHandlerAsync(string text, string channel)
+        {
+            var systemName = text.Replace("?traffic", "").Replace("? traffic", "").Trim();
+            var result = await EDSMHelper.GetSystemTrafficInfo(systemName);
+
+            if (result == null) //TODO: Check handling of not-found systems
+            {
+                SendMessage(channel, $"EDSM has no knowledge of '{systemName}'!");
+            }
+            else
+            {
+                var newLine = "<br>";
+                var message = $"Traffic Report for {result.Name}: {newLine}" +
+                    $"Today: {result.Traffic.Day}     This Week: {result.Traffic.Week} {newLine}" +
+                    $"Breakdown: {newLine}";
+
+                //Breakdown is only populated with ship types that have values
+                // use the dynamic stuff to only include those props in the output
+                foreach (var prop in result.Traffic.Breakdown)
+                {
+                    message += $"{prop}: {result.Traffic.Breakdown[prop]} {newLine}";
+                }
+
+                SendMessage(channel, message);
+            }
         }
     }
 }
