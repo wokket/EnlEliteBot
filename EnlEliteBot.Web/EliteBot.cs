@@ -21,6 +21,7 @@ namespace EnlEliteBot.Web
             OnMessage += DistanceHandler;
             OnMessage += LocateCommanderHandler;
             OnMessage += TrafficHandler;
+            OnMessage += RoundupHandler;
         }
 
         #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
@@ -83,8 +84,21 @@ namespace EnlEliteBot.Web
             }
         }
 
+        public void RoundupHandler(object sender, OnMessageArgs message)
+        {
+            var text = message.Text.ToLower();
+            if (text.StartsWith("?roundup") || text.StartsWith("? roundup") ||
+                text.StartsWith("?soundoff") || text.StartsWith("? soundoff") ||
+                text.StartsWith("?wheremypeepsat") || text.StartsWith("? wheremypeepsat") || text.StartsWith("? where my peeps at"))
+            {
+                _handlers.LocateCommanderAsync("daftpunkdad", message.Channel);
+                _handlers.LocateCommanderAsync("kiwikev", message.Channel);
+                _handlers.LocateCommanderAsync("wokket", message.Channel);
+            }
+        }
+
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
-    }
+        }
 }
 
