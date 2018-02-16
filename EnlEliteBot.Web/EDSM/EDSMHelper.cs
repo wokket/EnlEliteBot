@@ -43,15 +43,13 @@ namespace EnlEliteBot.Web.EDSM
             return JSON.Deserialize<EDSMPlayerLocation>(json);
         }
 
-        internal static async Task<EDSMTrafficResult> GetSystemTrafficInfo(string systemName)
+        internal static Task<EDSMTrafficResult> GetSystemTrafficInfo(string systemName)
         {
             var encodedName = UrlEncoder.Default.Encode(systemName);
 
             var url = $"https://www.edsm.net/api-system-v1/traffic?systemName={encodedName}";
 
-            var result = await url.GetJsonAsync<EDSMTrafficResult>();
-
-            return result;
+            return url.GetJsonAsync<EDSMTrafficResult>();
         }
     }
 }

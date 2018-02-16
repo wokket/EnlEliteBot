@@ -116,22 +116,22 @@ namespace EnlEliteBot.Web
             var systemName = text.Replace("?traffic", "").Replace("? traffic", "").Trim();
             var result = await EDSMHelper.GetSystemTrafficInfo(systemName);
 
-            if (result == null) //TODO: Check handling of not-found systems
+            if (result?.Id == 0)
             {
                 SendMessage(channel, $"EDSM has no knowledge of '{systemName}'!");
             }
             else
             {
-                var newLine = "<br>";
-                var message = $"Traffic Report for {result.Name}: {newLine}" +
-                    $"Today: {result.Traffic.Day}     This Week: {result.Traffic.Week} {newLine}" +
+                var newLine = "\n";
+                var message = $"Traffic Report for {result.Name}:" +
+                    $"Today: {result.Traffic.Day}     This Week: {result.Traffic.Week} {newLine}{newLine}" +
                     $"Breakdown: {newLine}";
 
                 //Breakdown is only populated with ship types that have values
                 // use the dynamic stuff to only include those props in the output
-                foreach (var prop in result.Traffic.Breakdown)
+                foreach (var key in result.Breakdown.Keys)
                 {
-                    message += $"{prop}: {result.Traffic.Breakdown[prop]} {newLine}";
+                    message += $"{key}: {result.Breakdown[key]} {newLine}";
                 }
 
                 SendMessage(channel, message);

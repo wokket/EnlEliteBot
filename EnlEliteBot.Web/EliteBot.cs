@@ -91,9 +91,9 @@ namespace EnlEliteBot.Web
                 text.StartsWith("?soundoff") || text.StartsWith("? soundoff") ||
                 text.StartsWith("?wheremypeepsat") || text.StartsWith("? wheremypeepsat") || text.StartsWith("? where my peeps at"))
             {
-                _handlers.LocateCommanderAsync("daftpunkdad", message.Channel);
-                _handlers.LocateCommanderAsync("kiwikev", message.Channel);
-                _handlers.LocateCommanderAsync("wokket", message.Channel);
+                _handlers.LocateCommanderAsync("daftpunkdad", message.Channel).Wait();
+                _handlers.LocateCommanderAsync("kiwikev", message.Channel).Wait();
+                _handlers.LocateCommanderAsync("wokket", message.Channel).Wait();
             }
         }
 
