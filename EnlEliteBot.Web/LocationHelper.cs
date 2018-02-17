@@ -1,9 +1,7 @@
 ﻿using EnlEliteBot.Web.EDDB;
 using EnlEliteBot.Web.EDSM;
+using EnlEliteBot.Web.Redis;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace EnlEliteBot.Web
@@ -19,15 +17,21 @@ namespace EnlEliteBot.Web
         /// <returns></returns>
         public static async Task<ICoordinates> GetLocationFor(string token)
         {
-            var system = await EDDBHelper.GetSystemInfo(token);
 
-            if (system?.total > 0)
+            var system = await EDDBHelper.GetSystemInfoCached(token);
+            if (system != null)
             {
-                return system.docs[0];
+                return system;
             }
 
-            //not a system, try for a commander
+            //not a system, try for a commander in our redis cache
+            var cachedPlayer = RedisHelper.GetCommanderLastPosition(token);
+            if (cachedPlayer != null)
+            {
+                return cachedPlayer.CoOrds;
+            }
 
+            //if still no good hit up EDSM...
             var player = await EDSMHelper.GetCommanderLastPosition(token);
             return player?.coordinates; //the coords, or null
         }
