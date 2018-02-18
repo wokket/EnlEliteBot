@@ -19,7 +19,7 @@ namespace EnlEliteBot.Web.Redis
 
         public static CmdrSavedInfo GetCommanderLastPosition(string commanderName)
         {
-            var data = _db.StringGet("CMDR:" + commanderName);
+            var data = _db.StringGet("CMDR:" + commanderName.ToLower());
 
             if (data == RedisValue.Null)
             {
@@ -37,7 +37,7 @@ namespace EnlEliteBot.Web.Redis
             var toSave = JsonConvert.SerializeObject(currentState);
             Console.WriteLine($"{currentState.CommanderName}: {toSave}");
 
-            var key = "CMDR:" + currentState.CommanderName;
+            var key = "CMDR:" + currentState.CommanderName.ToLower();
             _db.StringSet(key, toSave);
         }
 

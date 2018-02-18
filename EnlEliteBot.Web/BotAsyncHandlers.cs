@@ -1,5 +1,6 @@
 ﻿using EnlEliteBot.Web.EDDB;
 using EnlEliteBot.Web.EDSM;
+using EnlEliteBot.Web.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -57,6 +58,13 @@ namespace EnlEliteBot.Web
         internal async Task LocateCommanderAsync(string text, string channel)
         {
             var commander = text.Replace("?locate", "").Replace("? locate", "").Trim();
+
+            var cachedPlayer = RedisHelper.GetCommanderLastPosition(commander);
+
+            if (cachedPlayer != null){
+                SendMessage(channel, $"'{commander}' last seen via EDDN in {cachedPlayer.SystemName} at {cachedPlayer.LastSeenAtUtc}");
+                return;
+            }
 
             var player = await EDSMHelper.GetCommanderLastPosition(commander);
 

@@ -1,5 +1,6 @@
 ﻿using EnlEliteBot.Web.EDDN;
 using EnlEliteBot.Web.Redis;
+using System;
 
 namespace EnlEliteBot.Web
 {
@@ -20,8 +21,17 @@ namespace EnlEliteBot.Web
 
         private static void HandleResult(object sender, string result)
         {
-            var currentState = EDDNResultParser.ParseJson(result);
-            RedisHelper.SaveData(currentState);
+            try
+            {
+                var currentState = EDDNResultParser.ParseJson(result);
+                RedisHelper.SaveData(currentState);
+            }
+            catch (Exception ex) //ensure a data issue on a single record doesn't blow us apart.
+            {
+                Console.WriteLine("Error handling EDDN data:");
+                Console.WriteLine(ex.ToString());
+                Console.WriteLine("Data being parsed: " + result);
+            }
         }
     }
 }
