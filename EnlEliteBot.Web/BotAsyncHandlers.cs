@@ -55,14 +55,14 @@ namespace EnlEliteBot.Web
             }
         }
 
-        internal async Task LocateCommanderAsync(string text, string channel)
+        public async Task LocateCommanderAsync(string text, string channel)
         {
             var commander = text.Replace("?locate", "").Replace("? locate", "").Trim();
 
             var cachedPlayer = RedisHelper.GetCommanderLastPosition(commander);
 
             if (cachedPlayer != null){
-                SendMessage(channel, $"'{commander}' last seen via EDDN in {cachedPlayer.SystemName} at {cachedPlayer.LastSeenAtUtc}");
+                SendMessage(channel, $"'{cachedPlayer.CommanderName}' last seen via EDDN in {cachedPlayer.SystemName} at {cachedPlayer.LastSeenAtUtc}");
                 return;
             }
 
@@ -78,7 +78,7 @@ namespace EnlEliteBot.Web
             }
         }
 
-        internal async Task DistanceHandlerAsync(string text, string channel)
+        public async Task DistanceHandlerAsync(string text, string channel)
         {
             var systemNames = text.Replace("?distance", "").Replace("? distance", "");
 
