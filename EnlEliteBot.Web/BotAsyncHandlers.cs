@@ -23,37 +23,34 @@ namespace EnlEliteBot.Web
         public async Task SystemLookupAsync(string text, string channel)
         {
             var systemName = text.Replace("?system", "").Replace("? system", "").Trim();
-            var result = await EDDBHelper.GetSystemInfo(systemName);
+            var result = await EDDBHelper.GetSystemInfoCached(systemName);
 
-            if (result == null || result.total == 0)
+            if (result == null)
             {
                 SendMessage(channel, $"EDDB has no knowledge of '{systemName}'!");
             }
             else
             {
-                foreach (var system in result.docs)
-                {
-                    SendMessage(channel, system.Url);
-                }
+
+                SendMessage(channel, result.Url);
+
             }
         }
 
         internal async Task FactionTrendHandlerAsync(string text, string channel)
         {
             var systemName = text.Replace("?bgs", "").Replace("? bgs", "").Trim();
-            var result = await EDDBHelper.GetSystemInfo(systemName);
+            var result = await EDDBHelper.GetSystemInfoCached(systemName);
 
-            if (result == null || result.total == 0)
+            if (result == null)
             {
                 SendMessage(channel, $"EDDB has no knowledge of '{systemName}'!");
             }
             else
             {
-                foreach (var system in result.docs)
-                {
-                    var url = $"https://elitebgs.kodeblox.com/system/{system._id}";
-                    SendMessage(channel, url);
-                }
+                var url = $"https://elitebgs.kodeblox.com/system/{result._id}";
+                SendMessage(channel, url);
+
             }
         }
 
