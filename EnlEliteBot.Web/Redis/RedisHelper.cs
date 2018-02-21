@@ -27,7 +27,7 @@ namespace EnlEliteBot.Web.Redis
                 return null; //not found
             }
 
-            _db.StringIncrement("Stats:Cmdr Cache Hit");
+            _db.StringIncrement("Stats:Cmdr Cache Hit", flags: CommandFlags.FireAndForget);
             return JsonConvert.DeserializeObject<CmdrSavedInfo>(data);
         }
 
@@ -55,7 +55,7 @@ namespace EnlEliteBot.Web.Redis
             if (data == RedisValue.Null)
             {
                 Console.WriteLine($"Redis sys cache miss for {sysName}");
-                _db.StringIncrement("Stats:System Cache Miss");
+                _db.StringIncrement("Stats:System Cache Miss", flags: CommandFlags.FireAndForget);
 
                 return null; //not found
             }
