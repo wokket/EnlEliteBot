@@ -12,7 +12,7 @@ namespace EnlEliteBot.Web.EDDB
         private static async Task<EBGSSearchResult> GetSystemInfo(string systemName)
         {
             var systemNameEncoded = UrlEncoder.Default.Encode(systemName);
-            var url = $"https://elitebgs.kodeblox.com/api/eddb/v3/systems?name={systemNameEncoded}";
+            var url = $"https://elitebgs.kodeblox.com/api/ebgs/v4/systems?name={systemNameEncoded}";
 
            return await url.GetJsonAsync<EBGSSearchResult>();
         }
