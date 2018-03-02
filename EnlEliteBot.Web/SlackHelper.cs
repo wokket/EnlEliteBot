@@ -3,16 +3,34 @@ using System.Collections.Generic;
 using Flurl.Http;
 using EnlEliteBot.Web.Utils;
 using System.Text.Encodings.Web;
+using System;
+using System.Threading;
 
 namespace EnlEliteBot.Web
 {
     public static class SlackHelper
     {
         private static Dictionary<string, string> _tokens;
+        private static Timer _timer;
+        private static Dictionary<string, DateTime> _lastUpdate = new Dictionary<string, DateTime>();
 
         public static void SetSlackUsers(SlackConfig data)
         {
             _tokens = new Dictionary<string, string>(data.UserConfig);
+            _timer = new Timer(IdlePlayerHandler, null, 0, (int)TimeSpan.FromMinutes(1).TotalMilliseconds);
+        }
+
+        private static void IdlePlayerHandler(object _)
+        {
+            // runs intermittently to detect players with no updates, and marks them offline
+            foreach (var cmdr in _lastUpdate.Keys)
+            {
+                if (_lastUpdate[cmdr] < DateTime.Now.Subtract(TimeSpan.FromMinutes(5)))
+                { // no events at all in 5 minutes
+                    UpdatePlayerState(cmdr, null);
+                    _lastUpdate.Remove(cmdr);
+                }
+            }
         }
 
         public static void HandleCommanderData(CmdrSavedInfo cmdr)
@@ -21,7 +39,12 @@ namespace EnlEliteBot.Web
 
             if (_tokens.ContainsKey(cmdrName))
             {
-                UpdatePlayerState(cmdrName, cmdr.SystemName);
+                if (!string.IsNullOrEmpty(cmdr.SystemName) || cmdr.Event == "ShutDown")
+                {
+                    UpdatePlayerState(cmdrName, cmdr.SystemName);
+                }
+
+                _lastUpdate[cmdrName] = DateTime.Now; //connection is still active
             }
         }
 

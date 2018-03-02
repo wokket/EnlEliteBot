@@ -25,12 +25,8 @@ namespace EnlEliteBot.Web
             {
                 var currentState = EDDNResultParser.ParseJson(result);
                 RedisHelper.SaveData(currentState);
+                SlackHelper.HandleCommanderData(currentState);
 
-
-                if (!string.IsNullOrEmpty(currentState.SystemName) || currentState.Event == "ShutDown")
-                {
-                    SlackHelper.HandleCommanderData(currentState);
-                }
 
             }
             catch (Exception ex) //ensure a data issue on a single record doesn't blow us apart.
