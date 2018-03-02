@@ -1,6 +1,7 @@
 ﻿using EnlEliteBot.Web.EDDN;
 using EnlEliteBot.Web.Redis;
 using System;
+using System.Linq;
 
 namespace EnlEliteBot.Web
 {
@@ -11,7 +12,6 @@ namespace EnlEliteBot.Web
     /// </summary>
     public static class EddnListener
     {
-
         public static void Start()
         {
             var client = new EddnClient();
@@ -25,6 +25,13 @@ namespace EnlEliteBot.Web
             {
                 var currentState = EDDNResultParser.ParseJson(result);
                 RedisHelper.SaveData(currentState);
+
+
+                if (!string.IsNullOrEmpty(currentState.SystemName) || currentState.Event == "ShutDown")
+                {
+                    SlackHelper.HandleCommanderData(currentState);
+                }
+
             }
             catch (Exception ex) //ensure a data issue on a single record doesn't blow us apart.
             {

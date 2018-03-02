@@ -33,7 +33,6 @@ namespace EnlEliteBot.Web.Redis
 
         public static void SaveData(CmdrSavedInfo currentState)
         {
-
             var toSave = JsonConvert.SerializeObject(currentState);
             Console.WriteLine($"{currentState.CommanderName}: {toSave}");
 

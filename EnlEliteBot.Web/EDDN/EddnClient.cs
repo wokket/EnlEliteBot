@@ -1,4 +1,5 @@
-﻿using NetMQ;
+﻿using Microsoft.Extensions.Configuration;
+using NetMQ;
 using NetMQ.Sockets;
 using Org.BouncyCastle.Utilities.Zlib;
 using System;
@@ -16,8 +17,14 @@ namespace EnlEliteBot.Web.EDDN
         private readonly UTF8Encoding _utf8 = new UTF8Encoding();
 
         private readonly byte[] _buffer = new byte[4096];
+        private readonly global::System.String _endpoint;
 
         public event EventHandler<string> OnMessageReceived;
+
+        public EddnClient()
+        {
+            _endpoint = Startup.Configuration["ZeroMQ.Endpoint"];
+        }
 
         public void StartOnBackgroundThread()
         {
@@ -29,13 +36,15 @@ namespace EnlEliteBot.Web.EDDN
             using (var client = new SubscriberSocket())
             {
                 client.Options.ReceiveHighWatermark = 1000;
-                client.Connect("tcp://eddn.edcd.io:9500");
+                client.Connect(_endpoint);
+                Console.Out.WriteLine($"Connecting to ZeroMQ at {_endpoint}");
                 client.SubscribeToAnyTopic();
 
                 while (true)
                 {
                     var bytes = client.ReceiveFrameBytes();
-                    var result = Decompress(bytes);
+                    //var result = Decompress(bytes);
+                    var result = Encoding.UTF8.GetString(bytes);
 
                     OnMessageReceived?.Invoke(this, result);
                 }

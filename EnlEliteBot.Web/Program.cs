@@ -7,8 +7,10 @@ namespace EnlEliteBot.Web
     {
         public static void Main(string[] args)
         {
-            EddnListener.Start(); //starts listener and returns
-            BuildWebHost(args).Run(); //starts bot web host and blocks.
+
+            var webhost = BuildWebHost(args);
+            EddnListener.Start(); //starts listener and returns, need to build webhost first for config
+            webhost.Run(); //starts bot web host and blocks.
         }
 
         public static IWebHost BuildWebHost(string[] args) =>

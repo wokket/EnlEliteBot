@@ -11,15 +11,16 @@ namespace EnlEliteBot.Web.EDDN
 
             var json = JObject.Parse(result);
 
-            var cmdr = (string)json.SelectToken("header.uploaderID");
+            var cmdr = (string)json.SelectToken("commander");
 
             var system = (string)(
-                    json.SelectToken("message.systemName") ??
-                    json.SelectToken("message.StarSystem"));
+                    json.SelectToken("data.systemName") ??
+                    json.SelectToken("data.StarSystem"));
 
-            var asAt = (DateTime)json.SelectToken("message.timestamp");
+            var asAt = (DateTime)json.SelectToken("data.timestamp");
 
-            var sysPosition = json.SelectToken("message.StarPos");
+            var sysPosition = json.SelectToken("data.StarPos");
+            var eventName = (string)json.SelectToken("data.event");
 
             EDDNCoordinates coOrds = null;
             if (sysPosition != null)
@@ -41,6 +42,7 @@ namespace EnlEliteBot.Web.EDDN
 
             return new CmdrSavedInfo
             {
+                Event = eventName,
                 CommanderName = cmdr,
                 SystemName = system,
                 LastSeenAtUtc = asAt,

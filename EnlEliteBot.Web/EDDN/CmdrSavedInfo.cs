@@ -1,4 +1,5 @@
 ﻿using System;
+using Newtonsoft.Json.Linq;
 
 namespace EnlEliteBot.Web.EDDN
 {
@@ -12,6 +13,7 @@ namespace EnlEliteBot.Web.EDDN
         public DateTime LastSeenAtUtc { get; set; }
 
         public EDDNCoordinates CoOrds { get; set; }
+        public string Event { get; set; }
     }
 
     public class EDDNCoordinates : ICoordinates

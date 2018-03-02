@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using EnlEliteBot.Web.Utils;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Generic;
 
 namespace EnlEliteBot.Web
 {
@@ -49,6 +51,10 @@ namespace EnlEliteBot.Web
                 defaults: new { controller = "Home", action = "Index" });
             });
 
+            var slackConfig = new SlackConfig();
+            Configuration.GetSection("slackUsersSection").Bind(slackConfig);
+
+            SlackHelper.SetSlackUsers(slackConfig);
 
             var slackToken = Configuration["slackToken"];
             var bot = new EliteBot(slackToken);
