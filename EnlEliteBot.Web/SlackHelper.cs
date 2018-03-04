@@ -4,6 +4,7 @@ using Flurl.Http;
 using EnlEliteBot.Web.Utils;
 using System.Text.Encodings.Web;
 using System;
+using System.Linq;
 using System.Threading;
 
 namespace EnlEliteBot.Web
@@ -23,7 +24,8 @@ namespace EnlEliteBot.Web
         private static void IdlePlayerHandler(object _)
         {
             // runs intermittently to detect players with no updates, and marks them offline
-            foreach (var cmdr in _lastUpdate.Keys)
+            var keys = _lastUpdate.Keys.ToArray(); //prevent modified ienumerable exception
+            foreach (var cmdr in keys)
             {
                 if (_lastUpdate[cmdr] < DateTime.Now.Subtract(TimeSpan.FromMinutes(5)))
                 { // no events at all in 5 minutes

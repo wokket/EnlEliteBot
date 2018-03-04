@@ -24,7 +24,11 @@ namespace EnlEliteBot.Web
             try
             {
                 var currentState = EDDNResultParser.ParseJson(result);
-                RedisHelper.SaveData(currentState);
+                if (currentState.SystemName != null)
+                {
+                    RedisHelper.SaveData(currentState);
+                }
+
                 SlackHelper.HandleCommanderData(currentState);
 
 

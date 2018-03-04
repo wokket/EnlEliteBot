@@ -32,12 +32,15 @@ namespace EnlEliteBot.Web.EDDN
                 //get the coOrds from EDSM
                 var sysInfo = EDDBHelper.GetSystemInfoCached(system).Result; //Danger will robinson
 
-                coOrds = new EDDNCoordinates
+                if (sysInfo != null)
                 {
-                    x = sysInfo.x,
-                    y = sysInfo.y,
-                    z = sysInfo.z
-                };
+                    coOrds = new EDDNCoordinates
+                    {
+                        x = sysInfo.x,
+                        y = sysInfo.y,
+                        z = sysInfo.z
+                    };
+                }
             }
 
             return new CmdrSavedInfo
