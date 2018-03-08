@@ -40,7 +40,7 @@ namespace EnlEliteBot.Web
             using (var consumer = new Consumer<Ignore, string>(config, null, new StringDeserializer(Encoding.UTF8)))
             {
                 // just start at the head of the parititon, there's no value to replaying messages here....
-                consumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset("commanders", 0, Offset.Beginning) });
+                consumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset("commanders", 0, Offset.End) });
 
                 consumer.OnError += (_, error)
                     => Console.Error.WriteLine($"Kafka Error: {error}");
