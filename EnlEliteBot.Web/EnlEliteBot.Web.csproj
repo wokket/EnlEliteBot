@@ -6,10 +6,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="server-cert.cer" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="server-cert.cer">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Confluent.Kafka" Version="0.11.3" />
     <PackageReference Include="Flurl.Http" Version="2.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.0" />

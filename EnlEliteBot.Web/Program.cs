@@ -9,7 +9,8 @@ namespace EnlEliteBot.Web
         {
 
             var webhost = BuildWebHost(args);
-            EddnListener.Start(); //starts listener and returns, need to build webhost first for config
+            //EddnListener.Start(); //starts listener and returns, need to build webhost first for config
+            KafkaListener.Start();
             webhost.Run(); //starts bot web host and blocks.
         }
 

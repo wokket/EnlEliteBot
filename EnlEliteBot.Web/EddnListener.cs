@@ -19,7 +19,7 @@ namespace EnlEliteBot.Web
             client.StartOnBackgroundThread();
         }
 
-        private static void HandleResult(object sender, string result)
+        public static void HandleResult(object sender, string result)
         {
             try
             {
