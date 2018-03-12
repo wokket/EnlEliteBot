@@ -6,6 +6,7 @@ using System.Text.Encodings.Web;
 using System;
 using System.Linq;
 using System.Threading;
+using EnlEliteBot.Web.Redis;
 
 namespace EnlEliteBot.Web
 {
@@ -29,7 +30,7 @@ namespace EnlEliteBot.Web
             {
                 if (_lastUpdate[cmdr] < DateTime.Now.Subtract(TimeSpan.FromMinutes(5)))
                 { // no events at all in 5 minutes
-                    UpdatePlayerState(cmdr, null);
+                    UpdatePlayerState(cmdr, (string)null);
                     _lastUpdate.Remove(cmdr);
                 }
             }
@@ -50,7 +51,58 @@ namespace EnlEliteBot.Web
             }
         }
 
-        public static void UpdatePlayerState(string cmdrName, string systemName)
+
+        public static void HandleCommanderData(string commanderName, FullCommanderState cmdr)
+        {
+            var cmdrName = commanderName.ToLower();
+
+            if (_tokens.ContainsKey(cmdrName))
+            {
+                UpdatePlayerState(cmdrName, cmdr);
+                _lastUpdate[cmdrName] = DateTime.Now; //connection is still active
+            }
+        }
+
+        private static void UpdatePlayerState(string cmdrName, FullCommanderState state)
+        {
+            var payload = new SlackStatus();
+
+
+
+            switch (state.WakeState)
+            {
+                case "Docked":
+                    payload.status_emoji = $":{state.StationType}:";
+                    break;
+
+                case "Normal Space":
+                    payload.status_emoji = $":airplane:";
+                    break;
+
+                case "Supercruise":
+                    payload.status_emoji = $":rocket:";
+                    break;
+
+                case "Witchspace":
+                    payload.status_emoji = $":taxi:";
+                    break;
+                default:
+                    payload.status_emoji = "";
+                    break;
+            }
+
+            payload.status_text = $"{state.WakeState} in {state.System}";
+
+            if (!string.IsNullOrEmpty(state.Body))
+            {
+                payload.status_text += $" near {state.BodyType} {state.Body}";
+            }
+
+            UpdateSlack(cmdrName, payload);
+            //Console.WriteLine($"{payload.status_emoji} /// {payload.status_text}");
+        }
+
+        private static void UpdatePlayerState(string cmdrName, string systemName)
         {
             var payload = new SlackStatus();
 
@@ -65,6 +117,12 @@ namespace EnlEliteBot.Web
                 payload.status_emoji = "";
             };
 
+
+            //UpdateSlack(cmdrName, payload);
+        }
+
+        private static void UpdateSlack(string cmdrName, SlackStatus payload)
+        {
             var payloadJson = UrlEncoder.Default.Encode(JSON.Serialize(payload));
             var url = $"https://slack.com/api/users.profile.set?profile={payloadJson}&token={_tokens[cmdrName]}";
 
@@ -72,8 +130,6 @@ namespace EnlEliteBot.Web
 
             var response = result.Content.ReadAsStringAsync().Result;
         }
-
-
 
         private class SlackStatus
         {

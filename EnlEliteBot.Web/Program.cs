@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore;
+﻿using EnlEliteBot.Web.Redis;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
 namespace EnlEliteBot.Web
@@ -11,6 +12,7 @@ namespace EnlEliteBot.Web
             var webhost = BuildWebHost(args);
             //EddnListener.Start(); //starts listener and returns, need to build webhost first for config
             KafkaListener.Start();
+            RedisHelper.ConfigureSubscription();
             webhost.Run(); //starts bot web host and blocks.
         }
 

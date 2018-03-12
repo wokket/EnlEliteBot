@@ -30,7 +30,7 @@ namespace EnlEliteBot.Web
                 //SSL Settings, see https://github.com/ah-/rdkafka-dotnet/issues/60
               //  { "security.protocol", "SSL" },
               //  { "ssl.ca.location", @"C:\dev\EnlEliteBot\EnlEliteBot.Web\bin\Debug\netcoreapp2.0\server-cert.cer"},
-                { "debug", "security,broker" }
+               // { "debug", "security,broker" }
 
 
             };
