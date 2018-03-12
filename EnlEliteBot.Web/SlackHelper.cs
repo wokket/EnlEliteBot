@@ -30,26 +30,26 @@ namespace EnlEliteBot.Web
             {
                 if (_lastUpdate[cmdr] < DateTime.Now.Subtract(TimeSpan.FromMinutes(5)))
                 { // no events at all in 5 minutes
-                    UpdatePlayerState(cmdr, (string)null);
+                    UpdateSlack(cmdr, new SlackStatus()); //blank status
                     _lastUpdate.Remove(cmdr);
                 }
             }
         }
 
-        public static void HandleCommanderData(CmdrSavedInfo cmdr)
-        {
-            var cmdrName = cmdr.CommanderName.ToLower();
+        //public static void HandleCommanderData(CmdrSavedInfo cmdr)
+        //{
+        //    var cmdrName = cmdr.CommanderName.ToLower();
 
-            if (_tokens.ContainsKey(cmdrName))
-            {
-                if (!string.IsNullOrEmpty(cmdr.SystemName) || cmdr.Event == "ShutDown")
-                {
-                    UpdatePlayerState(cmdrName, cmdr.SystemName);
-                }
+        //    if (_tokens.ContainsKey(cmdrName))
+        //    {
+        //        if (!string.IsNullOrEmpty(cmdr.SystemName) || cmdr.Event == "ShutDown")
+        //        {
+        //            UpdatePlayerState(cmdrName, cmdr.SystemName);
+        //        }
 
-                _lastUpdate[cmdrName] = DateTime.Now; //connection is still active
-            }
-        }
+        //        _lastUpdate[cmdrName] = DateTime.Now; //connection is still active
+        //    }
+        //}
 
 
         public static void HandleCommanderData(string commanderName, FullCommanderState cmdr)
@@ -67,12 +67,16 @@ namespace EnlEliteBot.Web
         {
             var payload = new SlackStatus();
 
-
+            if (state == null || state.WakeState == "LoggedOut") // clear the status
+            {
+                UpdateSlack(cmdrName, payload);
+                return;
+            }
 
             switch (state.WakeState)
             {
                 case "Docked":
-                    payload.status_emoji = $":{state.StationType}:";
+                    payload.status_emoji = $":{state.StationType.ToLower()}:";
                     break;
 
                 case "Normal Space":
@@ -95,31 +99,31 @@ namespace EnlEliteBot.Web
 
             if (!string.IsNullOrEmpty(state.Body))
             {
-                payload.status_text += $" near {state.BodyType} {state.Body}";
+                payload.status_text += $" near {state.Body}";
             }
 
             UpdateSlack(cmdrName, payload);
             //Console.WriteLine($"{payload.status_emoji} /// {payload.status_text}");
         }
 
-        private static void UpdatePlayerState(string cmdrName, string systemName)
-        {
-            var payload = new SlackStatus();
+        //private static void UpdatePlayerState(string cmdrName, string systemName)
+        //{
+        //    var payload = new SlackStatus();
 
-            if (systemName != null)
-            {
-                payload.status_text = $"In {systemName}";
-                payload.status_emoji = ":space_invader:";
-            }
-            else
-            {
-                payload.status_text = "";
-                payload.status_emoji = "";
-            };
+        //    if (systemName != null)
+        //    {
+        //        payload.status_text = $"In {systemName}";
+        //        payload.status_emoji = ":space_invader:";
+        //    }
+        //    else
+        //    {
+        //        payload.status_text = "";
+        //        payload.status_emoji = "";
+        //    };
 
 
-            //UpdateSlack(cmdrName, payload);
-        }
+        //    //UpdateSlack(cmdrName, payload);
+        //}
 
         private static void UpdateSlack(string cmdrName, SlackStatus payload)
         {
@@ -129,10 +133,16 @@ namespace EnlEliteBot.Web
             var result = url.GetAsync().Result; //danger!!
 
             var response = result.Content.ReadAsStringAsync().Result;
+            //Console.Out.WriteLine($"*** Slack status response: {response}");
         }
 
         private class SlackStatus
         {
+            public SlackStatus()
+            {
+                status_emoji = "";
+                status_text = "";
+            }
             public string status_text { get; set; }
             public string status_emoji { get; set; }
         }

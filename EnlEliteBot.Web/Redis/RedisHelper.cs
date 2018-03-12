@@ -31,6 +31,7 @@ namespace EnlEliteBot.Web.Redis
 
         private static void HandleCommanderStatusChanged(RedisChannel channel, RedisValue value)
         {
+            Console.Out.WriteLine($"REDIS NOTIFICATION: {channel} /// {value}");
             var commander = ((string)channel).Replace("__keyspace@0__:Status:", "");
             var rawData = _db.HashGetAll($"Status:{commander}");
 

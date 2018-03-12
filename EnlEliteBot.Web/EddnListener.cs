@@ -28,10 +28,6 @@ namespace EnlEliteBot.Web
                 {
                     RedisHelper.SaveData(currentState);
                 }
-
-                SlackHelper.HandleCommanderData(currentState);
-
-
             }
             catch (Exception ex) //ensure a data issue on a single record doesn't blow us apart.
             {
