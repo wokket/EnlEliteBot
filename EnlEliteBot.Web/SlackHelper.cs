@@ -28,8 +28,8 @@ namespace EnlEliteBot.Web
             var keys = _lastUpdate.Keys.ToArray(); //prevent modified ienumerable exception
             foreach (var cmdr in keys)
             {
-                if (_lastUpdate[cmdr] < DateTime.Now.Subtract(TimeSpan.FromMinutes(5)))
-                { // no events at all in 5 minutes
+                if (_lastUpdate[cmdr] < DateTime.Now.Subtract(TimeSpan.FromMinutes(15)))
+                { // no status updates at all in 15 minutes
                     UpdateSlack(cmdr, new SlackStatus()); //blank status
                     _lastUpdate.Remove(cmdr);
                 }
@@ -88,7 +88,7 @@ namespace EnlEliteBot.Web
                     break;
 
                 case "Witchspace":
-                    payload.status_emoji = $":taxi:";
+                    payload.status_emoji = $":witch:";
                     break;
                 default:
                     payload.status_emoji = "";
@@ -97,7 +97,11 @@ namespace EnlEliteBot.Web
 
             payload.status_text = $"{state.WakeState} in {state.System}";
 
-            if (!string.IsNullOrEmpty(state.Body))
+            if (!string.IsNullOrEmpty(state.StationName))
+            {
+                payload.status_text += $" at {state.StationName}";
+            }
+            else if (!string.IsNullOrEmpty(state.Body))
             {
                 payload.status_text += $" near {state.Body}";
             }
