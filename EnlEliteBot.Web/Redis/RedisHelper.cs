@@ -5,19 +5,20 @@ using StackExchange.Redis;
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace EnlEliteBot.Web.Redis
 {
     public static class RedisHelper
     {
         private static readonly ConnectionMultiplexer _redis;
-        private static readonly IDatabase _db;
+        public static readonly IDatabase Database;
         private static readonly ISubscriber _subscriber;
 
         static RedisHelper()
         {
             _redis = ConnectionMultiplexer.Connect("localhost");
-            _db = _redis.GetDatabase();
+            Database = _redis.GetDatabase();
             _subscriber = _redis.GetSubscriber();
         }
 
@@ -33,7 +34,7 @@ namespace EnlEliteBot.Web.Redis
         {
             Console.Out.WriteLine($"REDIS NOTIFICATION: {channel} /// {value}");
             var commander = ((string)channel).Replace("__keyspace@0__:Status:", "");
-            var rawData = _db.HashGetAll($"Status:{commander}");
+            var rawData = Database.HashGetAll($"Status:{commander}");
 
             var data = rawData.ConvertFromRedis<FullCommanderState>();
             SlackHelper.HandleCommanderData(commander, data);
@@ -41,15 +42,15 @@ namespace EnlEliteBot.Web.Redis
 
         public static CmdrSavedInfo GetCommanderLastPosition(string commanderName)
         {
-            var data = _db.StringGet("CMDR:" + commanderName.ToLower());
+            var data = Database.StringGet("CMDR:" + commanderName.ToLower());
 
             if (data == RedisValue.Null)
             {
-                _db.StringIncrement("Stats:Cmdr Cache Miss");
+                Database.StringIncrement("Stats:Cmdr Cache Miss");
                 return null; //not found
             }
 
-            _db.StringIncrement("Stats:Cmdr Cache Hit", flags: CommandFlags.FireAndForget);
+            Database.StringIncrement("Stats:Cmdr Cache Hit", flags: CommandFlags.FireAndForget);
             return JsonConvert.DeserializeObject<CmdrSavedInfo>(data);
         }
 
@@ -59,29 +60,29 @@ namespace EnlEliteBot.Web.Redis
             Console.WriteLine($"{currentState.CommanderName}: {toSave}");
 
             var key = "CMDR:" + currentState.CommanderName.ToLower();
-            _db.StringSet(key, toSave);
+            Database.StringSet(key, toSave);
         }
 
         public static void SaveData(EDDBSystemInfo data)
         {
             var toSave = JsonConvert.SerializeObject(data);
             var key = "SYS:" + data.name;
-            _db.StringSet(key, toSave);
+            Database.StringSet(key, toSave);
         }
 
         public static EDDBSystemInfo GetSystem(string sysName)
         {
-            var data = _db.StringGet("SYS:" + sysName);
+            var data = Database.StringGet("SYS:" + sysName);
 
             if (data == RedisValue.Null)
             {
                 Console.WriteLine($"Redis sys cache miss for {sysName}");
-                _db.StringIncrement("Stats:System Cache Miss", flags: CommandFlags.FireAndForget);
+                Database.StringIncrement("Stats:System Cache Miss", flags: CommandFlags.FireAndForget);
 
                 return null; //not found
             }
 
-            _db.StringIncrement("Stats:System Cache Hit");
+            Database.StringIncrement("Stats:System Cache Hit");
             return JsonConvert.DeserializeObject<EDDBSystemInfo>(data);
         }
 

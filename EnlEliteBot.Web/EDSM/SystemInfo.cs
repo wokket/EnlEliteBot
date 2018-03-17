@@ -1,4 +1,5 @@
-﻿using System.Text.Encodings.Web;
+﻿using System.Diagnostics;
+using System.Text.Encodings.Web;
 
 namespace EnlEliteBot.Web.EDSM
 {
@@ -17,5 +18,22 @@ namespace EnlEliteBot.Web.EDSM
                 return $"https://www.edsm.net/en/system/id/{Id}/name/{encodedName}";
             }
         }
+    }
+
+    [DebuggerDisplay("EdsmSystemSphereResult ({Id}:{Name})")]
+    public class EdsmSystemSphereResult
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public CoOrds Coords { get; set; }
+        public float? Distance { get; set; }
+
+    }
+
+    public class CoOrds
+    {
+        public float X { get; set; }
+        public float Y { get; set; }
+        public float Z { get; set; }
     }
 }

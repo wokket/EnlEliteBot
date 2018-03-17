@@ -1,4 +1,7 @@
 ﻿using Flurl.Http;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 
@@ -48,6 +51,20 @@ namespace EnlEliteBot.Web.EDSM
             var url = $"https://www.edsm.net/api-system-v1/traffic?systemName={encodedName}";
 
             return url.GetJsonAsync<EDSMTrafficResult>();
+        }
+
+        public static async Task<List<EdsmSystemSphereResult>> GetSystemsInSphereAround(string target, int radius)
+        {
+
+            Console.WriteLine("Getting systems in sphere around target...");
+            var systemName = UrlEncoder.Default.Encode(target);
+            var url = $"https://www.edsm.net/api-v1/sphere-systems?showId=1&radius={radius}&systemName={systemName}";
+
+            var rawJson = await url.GetStringAsync();
+            var values = JSON.Deserialize<List<EdsmSystemSphereResult>>(rawJson);
+
+            Console.WriteLine($"   Found {values.Count} populated systems in range...");
+            return values;
         }
     }
 }
