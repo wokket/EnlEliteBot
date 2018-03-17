@@ -18,6 +18,7 @@ namespace EnlEliteBot.Web.MarketQueries
         public List<ProfitableTrade> Trades { get; internal set; }
 
         public TimeSpan TimeToGenerate { get; set; }
+        public BGSProfitRequest Request { get; internal set; }
 
         public static MarketResult Fail(string reason)
         {

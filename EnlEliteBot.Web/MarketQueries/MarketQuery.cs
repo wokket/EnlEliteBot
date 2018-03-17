@@ -45,7 +45,11 @@ namespace EnlEliteBot.Web.MarketQueries
             var possibleSourceSystems = await possibleSourceTask; // lets get that answer now, nothing else we can do until then.
 
             Debug.Assert(possibleSourceSystems?.Count > 0, "Search should have at least returned the sale system for a count of 1 ?!?!?!");
-            var returnValue = new MarketResult() { Success = true, SystemsInRange = possibleSourceSystems.Count }; //assume this is going to work from here in
+            var returnValue = new MarketResult() {
+                Success = true,
+                SystemsInRange = possibleSourceSystems.Count,
+                Request = request
+            }; //assume this is going to work from here in
 
 
             var tasks = new List<Task<List<ProfitableTrade>>>();
