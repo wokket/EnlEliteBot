@@ -2,14 +2,12 @@
 using EnlEliteBot.Web.EDDN;
 using EnlEliteBot.Web.EDSM;
 using EnlEliteBot.Web.Redis;
-using Flurl.Http;
 using Newtonsoft.Json;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 
 namespace EnlEliteBot.Web.MarketQueries
@@ -20,9 +18,12 @@ namespace EnlEliteBot.Web.MarketQueries
     public static class MarketQuery
     {
 
+        private const byte MIN_TRADES_PER_STATION = 4;
+
         public static async Task<MarketResult> GetPurchaseStation(BGSProfitRequest request)
         {
 
+            var timer = Stopwatch.StartNew();
             //lets start the EDSM ajax call, it might take a few seconds
             var possibleSourceTask = EDSMHelper.GetSystemsInSphereAround(request.SaleSystem, request.RadiusLY);
 
@@ -47,7 +48,7 @@ namespace EnlEliteBot.Web.MarketQueries
             var returnValue = new MarketResult() { Success = true, SystemsInRange = possibleSourceSystems.Count }; //assume this is going to work from here in
 
 
-            var tasks = new List<Task<Dictionary<string, List<ProfitableTrade>>>>();
+            var tasks = new List<Task<List<ProfitableTrade>>>();
             foreach (var possibleSource in possibleSourceSystems)
             {
                 tasks.Add(ShowMeTheMoney(destCommodities, possibleSource, request.MinProfit)); //get them started in parrallel
@@ -59,17 +60,18 @@ namespace EnlEliteBot.Web.MarketQueries
             {
                 if (systemResult.Any())
                 {
-                    returnValue.Trades.Add(systemResult);
+                    returnValue.Trades.AddRange(systemResult);
                 }
             }
 
+            returnValue.TimeToGenerate = timer.Elapsed;
             return returnValue;
         }
 
-        private static async Task<Dictionary<string, List<ProfitableTrade>>> ShowMeTheMoney(Dictionary<string, Commodity> destCommodities, EdsmSystemSphereResult possibleSource, int minProfit)
+        private static async Task<List<ProfitableTrade>> ShowMeTheMoney(Dictionary<string, Commodity> destCommodities, EdsmSystemSphereResult possibleSource, int minProfit)
         {
             //Time to start some hard yakka...
-            var returnValue = new Dictionary<string, List<ProfitableTrade>>(); //keyed by station name
+            var returnValue = new List<ProfitableTrade>(); //keyed by station name
 
             Console.WriteLine($"Finding markets in {possibleSource.Name}...");
             var markets = await GetAllMarketsInSystem(possibleSource.Name);
@@ -77,12 +79,12 @@ namespace EnlEliteBot.Web.MarketQueries
             {
                 var trades = ProcessMarket(market, possibleSource, minProfit, destCommodities);
 
-                if (trades.Any())
+                if (trades.Count() >= MIN_TRADES_PER_STATION)
                 {
-                    returnValue.Add(market.name, new List<ProfitableTrade>(trades));
+                    var sorted = trades.OrderByDescending(x => x.Profit);
+                    returnValue.AddRange(sorted);
                 }
             }
-
 
             return returnValue;
         }
@@ -142,26 +144,13 @@ namespace EnlEliteBot.Web.MarketQueries
 
         public static async Task<List<EbgsStation>> GetAllMarketsInSystem(string sysName)
         {
-            var encodedSysName = UrlEncoder.Default.Encode(sysName);
-            var url = $"https://elitebgs.kodeblox.com/api/ebgs/v4/stations?system={encodedSysName}";
 
-            var result = await url.GetJsonAsync<EbgsStationResult>();
+            var markets = await RedisHelper.GetAllMarketsInSystem(sysName); //caching call
+            return new List<EbgsStation>( FilterToPossibles(markets));
 
-            var stationsToReturn = new List<EbgsStation>();
-
-            stationsToReturn.AddRange(FilterToPossibles(result.docs)); //pity we can't do async interators yet so we could get started on these results....
-
-            while (result.page < result.pages)
-            {
-                var newUrl = url + $"&page={result.page + 1}"; //get next page of results
-                result = await newUrl.GetJsonAsync<EbgsStationResult>();
-                stationsToReturn.AddRange(FilterToPossibles(result.docs));
-            }
-
-            return stationsToReturn;
         }
 
-        private static IEnumerable<EbgsStation> FilterToPossibles(EbgsStation[] docs)
+        private static IEnumerable<EbgsStation> FilterToPossibles(IEnumerable<EbgsStation> docs)
         {
             foreach (var station in docs)
             {

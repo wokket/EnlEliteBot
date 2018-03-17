@@ -1,10 +1,13 @@
 ﻿using EnlEliteBot.Web.EDDB;
 using EnlEliteBot.Web.EDDN;
+using Flurl.Http;
 using Newtonsoft.Json;
 using StackExchange.Redis;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 
 namespace EnlEliteBot.Web.Redis
@@ -46,7 +49,7 @@ namespace EnlEliteBot.Web.Redis
 
             if (data == RedisValue.Null)
             {
-                Database.StringIncrement("Stats:Cmdr Cache Miss");
+                Database.StringIncrement("Stats:Cmdr Cache Miss", flags: CommandFlags.FireAndForget);
                 return null; //not found
             }
 
@@ -82,10 +85,50 @@ namespace EnlEliteBot.Web.Redis
                 return null; //not found
             }
 
-            Database.StringIncrement("Stats:System Cache Hit");
+            Database.StringIncrement("Stats:System Cache Hit", flags: CommandFlags.FireAndForget);
             return JsonConvert.DeserializeObject<EDDBSystemInfo>(data);
         }
 
+        public static async Task<List<EbgsStation>> GetAllMarketsInSystem(string sysName)
+        {
+
+            var key = $"STATIONS:{sysName}";
+            var data = await Database.StringGetAsync(key);
+
+            if (data == RedisValue.Null)
+            {
+                Database.StringIncrement("Stats:MarketsInSystem Cache Miss", flags: CommandFlags.FireAndForget);
+                var sourceData = await GetAllMarketsInSystemFromSource(sysName);
+
+                //non-blocking save
+                Database.StringSet(key, JsonConvert.SerializeObject(sourceData), flags: CommandFlags.FireAndForget);
+                return sourceData;
+            }
+
+            Database.StringIncrement("Stats:MarketsInSystem Cache Hit", flags: CommandFlags.FireAndForget);
+            return JsonConvert.DeserializeObject<List<EbgsStation>>(data);
+        }
+
+        private static async Task<List<EbgsStation>> GetAllMarketsInSystemFromSource(string sysName)
+        {
+            var encodedSysName = UrlEncoder.Default.Encode(sysName);
+            var url = $"https://elitebgs.kodeblox.com/api/ebgs/v4/stations?system={encodedSysName}";
+
+            var result = await url.GetJsonAsync<EbgsStationResult>();
+
+            var stationsToReturn = new List<EbgsStation>();
+
+            stationsToReturn.AddRange(result.docs);
+
+            while (result.page < result.pages)
+            {
+                var newUrl = url + $"&page={result.page + 1}"; //get next page of results
+                result = await newUrl.GetJsonAsync<EbgsStationResult>();
+                stationsToReturn.AddRange(result.docs);
+            }
+
+            return stationsToReturn;
+        }
 
 
         //Deserialize from Redis format

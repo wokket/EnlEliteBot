@@ -14,11 +14,15 @@ namespace XUnitTestProject1
         {
             var request = new BGSProfitRequest("Ra", "LeConte Dock", 20);
 
-            var timer = Stopwatch.StartNew();
             var result = await MarketQuery.GetPurchaseStation(request);
-            timer.Stop(); //40sec naiive sequential run, 7sec parrallelised
+
+            // took 40sec naiive sequential run, 7sec parallelised, 3.5sec with market caching in redis
             Assert.True(result.Success);
             Assert.True(result.Trades.Count > 0);
+
+            var output = TradeResultRenderer.GenerateReport(result);
+
+
         }
 
 

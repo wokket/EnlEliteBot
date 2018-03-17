@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace EnlEliteBot.Web.MarketQueries
 {
@@ -7,14 +8,16 @@ namespace EnlEliteBot.Web.MarketQueries
 
         public MarketResult()
         {
-            Trades = new List<Dictionary<string, List<ProfitableTrade>>>();
+            Trades = new List<ProfitableTrade>();
         }
 
         public bool Success { get; set; }
         public string FailReason { get; set; }
 
         public int SystemsInRange { get; set; }
-        public List<Dictionary<string, List<ProfitableTrade>>> Trades { get; internal set; }
+        public List<ProfitableTrade> Trades { get; internal set; }
+
+        public TimeSpan TimeToGenerate { get; set; }
 
         public static MarketResult Fail(string reason)
         {
