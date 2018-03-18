@@ -22,6 +22,7 @@ namespace EnlEliteBot.Web
             OnMessage += LocateCommanderHandler;
             OnMessage += TrafficHandler;
             OnMessage += RoundupHandler;
+            OnMessage += BGSProfitHandler;
         }
 
         #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
@@ -39,8 +40,8 @@ namespace EnlEliteBot.Web
         {
 
             var text = message.Text.ToLower();
-            if (text.StartsWith("?system", OrdinalIgnoreCase) ||
-                text.StartsWith("? system", OrdinalIgnoreCase))
+            if (text.StartsWith("?system ", OrdinalIgnoreCase) ||
+                text.StartsWith("? system ", OrdinalIgnoreCase))
             {
                 _handlers.SystemLookupAsync(text, message.Channel);
             }
@@ -49,7 +50,7 @@ namespace EnlEliteBot.Web
         public void FactionTrendHandler(object sender, OnMessageArgs message)
         {
             var text = message.Text.ToLower();
-            if (text.StartsWith("?bgs") || text.StartsWith("? bgs"))
+            if (text.StartsWith("?bgs ") || text.StartsWith("? bgs "))
             {
                 _handlers.FactionTrendHandlerAsync(text, message.Channel);
             }
@@ -58,7 +59,7 @@ namespace EnlEliteBot.Web
         public void LocateCommanderHandler(object sender, OnMessageArgs message)
         {
             var text = message.Text.ToLower();
-            if (text.StartsWith("?locate") || text.StartsWith("? locate"))
+            if (text.StartsWith("?locate ") || text.StartsWith("? locate "))
             {
                 _handlers.LocateCommanderAsync(text, message.Channel);
             }
@@ -69,7 +70,7 @@ namespace EnlEliteBot.Web
         {
 
             var text = message.Text.ToLower();
-            if (text.StartsWith("?distance") || text.StartsWith("? distance"))
+            if (text.StartsWith("?distance ") || text.StartsWith("? distance "))
             {
                 _handlers.DistanceHandlerAsync(text, message.Channel);
             }
@@ -78,7 +79,7 @@ namespace EnlEliteBot.Web
         public void TrafficHandler(object sender, OnMessageArgs message)
         {
             var text = message.Text.ToLower();
-            if (text.StartsWith("?traffic") || text.StartsWith("? traffic"))
+            if (text.StartsWith("?traffic ") || text.StartsWith("? traffic "))
             {
                 _handlers.TrafficHandlerAsync(text, message.Channel);
             }
@@ -87,9 +88,9 @@ namespace EnlEliteBot.Web
         public void RoundupHandler(object sender, OnMessageArgs message)
         {
             var text = message.Text.ToLower();
-            if (text.StartsWith("?roundup") || text.StartsWith("? roundup") ||
-                text.StartsWith("?soundoff") || text.StartsWith("? soundoff") ||
-                text.StartsWith("?wheremypeepsat") || text.StartsWith("? wheremypeepsat") || text.StartsWith("? where my peeps at"))
+            if (text.StartsWith("?roundup ") || text.StartsWith("? roundup ") ||
+                text.StartsWith("?soundoff ") || text.StartsWith("? soundoff ") ||
+                text.StartsWith("?wheremypeepsat ") || text.StartsWith("? wheremypeepsat ") || text.StartsWith("? where my peeps at "))
             {
                 _handlers.LocateCommanderAsync("daftpunkdad", message.Channel).Wait();
                 _handlers.LocateCommanderAsync("kiwikev", message.Channel).Wait();
@@ -97,6 +98,14 @@ namespace EnlEliteBot.Web
             }
         }
 
+        public void BGSProfitHandler(object sender, OnMessageArgs message)
+        {
+            var text = message.Text.ToLower();
+            if (text.StartsWith("? bgsprofit "))
+            {
+                _handlers.BGSProfitHandler(message.Text, message.Channel);
+            }
+        }
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
         }

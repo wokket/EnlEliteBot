@@ -12,7 +12,7 @@ namespace XUnitTestProject1
         [Fact]
         public async Task TestFindingProfit()
         {
-            var request = new BGSProfitRequest("Ra", "LeConte Dock", 20);
+            var request = new BGSProfitRequest("Ra", "LeConte Dock", 50);
 
             var result = await MarketQuery.GetPurchaseStation(request);
 
@@ -20,7 +20,7 @@ namespace XUnitTestProject1
             Assert.True(result.Success);
             Assert.True(result.Trades.Count > 0);
 
-            var output = TradeResultRenderer.GenerateReport(result);
+            var output = await TradeResultRenderer.GenerateReport(result);
 
 
         }

@@ -36,22 +36,6 @@ namespace EnlEliteBot.Web
             }
         }
 
-        //public static void HandleCommanderData(CmdrSavedInfo cmdr)
-        //{
-        //    var cmdrName = cmdr.CommanderName.ToLower();
-
-        //    if (_tokens.ContainsKey(cmdrName))
-        //    {
-        //        if (!string.IsNullOrEmpty(cmdr.SystemName) || cmdr.Event == "ShutDown")
-        //        {
-        //            UpdatePlayerState(cmdrName, cmdr.SystemName);
-        //        }
-
-        //        _lastUpdate[cmdrName] = DateTime.Now; //connection is still active
-        //    }
-        //}
-
-
         public static void HandleCommanderData(string commanderName, FullCommanderState cmdr)
         {
             var cmdrName = commanderName.ToLower();

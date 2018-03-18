@@ -1,5 +1,6 @@
 ﻿using EnlEliteBot.Web.EDDB;
 using EnlEliteBot.Web.EDSM;
+using EnlEliteBot.Web.MarketQueries;
 using EnlEliteBot.Web.Redis;
 using System;
 using System.Collections.Generic;
@@ -61,7 +62,8 @@ namespace EnlEliteBot.Web
 
             var cachedPlayer = RedisHelper.GetCommanderLastPosition(commander);
 
-            if (cachedPlayer != null){
+            if (cachedPlayer != null)
+            {
                 SendMessage(channel, $"'{cachedPlayer.CommanderName}' last seen via EDDN in {cachedPlayer.SystemName} at {cachedPlayer.LastSeenAtUtc}");
                 return;
             }
@@ -114,6 +116,28 @@ namespace EnlEliteBot.Web
             var distance = LocationHelper.CalcDistance(result0, result1);
 
             SendMessage(channel, $"Distance between {names[0]} and {names[1]} is {distance}ly");
+        }
+
+        internal async Task BGSProfitHandler(string text, string channel)
+        {
+            text = text.Replace("? bgsprofit", "");
+            var tokens = text.Split(':');
+
+            var system = tokens[0].Trim();
+            var market = tokens[1].Trim();
+
+            try
+            {
+                var request = new BGSProfitRequest(system, market);
+                var result = await MarketQuery.GetPurchaseStation(request);
+                var reportUrl = await TradeResultRenderer.GenerateReport(result);
+
+                SendMessage(channel, reportUrl);
+            }
+            catch (Exception ex)
+            {
+                SendMessage(channel, $"Profit generation failed: {ex.ToString()}");
+            }
         }
 
         internal async Task TrafficHandlerAsync(string text, string channel)
